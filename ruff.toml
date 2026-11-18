@@ -1,0 +1,7 @@
+line-length = 120
+target-version = "py311"
+exclude = [".airflow_home", "logs", "dbt_project/target"]
+
+[lint]
+select = ["E", "F", "I"]
+ignore = ["E501"]
