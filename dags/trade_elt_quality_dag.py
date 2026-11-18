@@ -162,7 +162,7 @@ def trade_elt_quality_gates():
             con.close()
         return meta
 
-    @task(task_id="run_quality_gates")
+    @task(task_id="run_quality_gates", sla=timedelta(minutes=10))
     def run_quality_gates(meta: dict) -> dict:
         import pandas as pd
         from checks.quality_gates import run_gates
