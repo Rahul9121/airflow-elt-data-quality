@@ -1,0 +1,8 @@
+trade_elt:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: ../data/warehouse.duckdb
+      threads: 2
+      schema: main
