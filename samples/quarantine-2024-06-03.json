@@ -1,0 +1,5 @@
+{
+  "trade_date": "2024-06-03",
+  "reason": "quality_gates_failed:schema_drift,null_rates,value_ranges,referential_integrity",
+  "path": "D:\\001Nov\\projects\\airflow-elt-data-quality\\data\\quarantine\\trade_date=2024-06-03"
+}

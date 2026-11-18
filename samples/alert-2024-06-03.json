@@ -1,0 +1,5 @@
+{
+  "trade_date": "2024-06-03",
+  "message": "Batch blocked by quality gates: quality_gates_failed:schema_drift,null_rates,value_ranges,referential_integrity",
+  "ts": "2026-11-18T18:12:14.284182Z"
+}

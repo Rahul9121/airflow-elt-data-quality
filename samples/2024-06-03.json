@@ -1,0 +1,50 @@
+{
+  "trade_date": "2024-06-03",
+  "passed": false,
+  "raw_trade_count": 160,
+  "processed_trade_count": 152,
+  "checks": [
+    {
+      "name": "schema_drift",
+      "passed": false,
+      "detail": "missing=[] extra=['extra_fee_code']",
+      "metric": 1,
+      "threshold": 0
+    },
+    {
+      "name": "null_rates",
+      "passed": false,
+      "detail": "rates={'trade_id': 0.05, 'trade_date': 0.0, 'symbol': 0.0, 'side': 0.0, 'quantity': 0.0, 'price': 0.1562, 'account_id': 0.0, 'venue': 0.0}",
+      "metric": 0.1562,
+      "threshold": 0.02
+    },
+    {
+      "name": "value_ranges",
+      "passed": false,
+      "detail": "quantity_out_of_range=5; invalid_side=5",
+      "metric": 2,
+      "threshold": 0
+    },
+    {
+      "name": "referential_integrity",
+      "passed": false,
+      "detail": "orphan_account_rows=10",
+      "metric": 10,
+      "threshold": 0
+    },
+    {
+      "name": "row_count",
+      "passed": true,
+      "detail": "count=160 expected=[50,5000]",
+      "metric": 160,
+      "threshold": "50-5000"
+    },
+    {
+      "name": "row_count_reconciliation",
+      "passed": true,
+      "detail": "raw=160 processed=152 delta=8",
+      "metric": 8,
+      "threshold": 160
+    }
+  ]
+}

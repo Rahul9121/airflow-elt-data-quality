@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Airflow ELT · Data Quality Gates</title>
+<style>
+:root {
+  --bg:#05060f; --cyan:#00f0ff; --mag:#ff2bd6; --lime:#b6ff00; --text:#e8eefc; --muted:#8b93a7; --card:#0c0f1c;
+}
+* { box-sizing:border-box; }
+body { margin:0; font-family: ui-sans-serif, system-ui, Segoe UI, sans-serif; background:var(--bg); color:var(--text); }
+header { padding:2.5rem 1.5rem 1rem; border-bottom:1px solid #1a2035; }
+h1 { margin:0; font-size:1.8rem; letter-spacing:.04em; }
+h1 span { color:var(--cyan); }
+.sub { color:var(--muted); margin-top:.4rem; }
+main { max-width:1100px; margin:0 auto; padding:1.5rem; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin:1rem 0 2rem; }
+.stat { background:var(--card); border:1px solid #1c243c; border-radius:12px; padding:1rem; }
+.stat b { display:block; font-size:1.4rem; color:var(--lime); margin-top:.3rem; }
+.card { background:var(--card); border:1px solid #1c243c; border-radius:14px; padding:1.2rem; margin-bottom:1.2rem; }
+h2 { color:var(--cyan); font-size:1.1rem; margin-top:2rem; }
+h3 { margin-top:0; }
+table { width:100%; border-collapse:collapse; font-size:.9rem; }
+th, td { text-align:left; padding:.55rem .4rem; border-bottom:1px solid #1a2035; vertical-align:top; }
+th { color:var(--muted); font-weight:600; }
+.badge { display:inline-block; padding:.15rem .55rem; border-radius:999px; font-size:.75rem; font-weight:700; letter-spacing:.04em; }
+.badge.pass { background:rgba(182,255,0,.12); color:var(--lime); border:1px solid rgba(182,255,0,.35); }
+.badge.fail { background:rgba(255,43,214,.12); color:var(--mag); border:1px solid rgba(255,43,214,.4); }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:.82rem; color:#c9d4f0; }
+.mermaid-wrap { background:#080b16; border:1px solid #1c243c; border-radius:14px; padding:1rem; overflow:auto; }
+footer { color:var(--muted); text-align:center; padding:2rem 1rem 3rem; font-size:.85rem; }
+a { color:var(--cyan); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Airflow ELT <span>Data Quality Gates</span></h1>
+  <p class="sub">Trade-data ELT with PySpark, dbt/DuckDB, and hard quality gates · generated 2026-11-18 18:12 UTC</p>
+</header>
+<main>
+  <div class="grid">
+    <div class="stat">Runs reviewed<b>5</b></div>
+    <div class="stat">Passed<b>4</b></div>
+    <div class="stat">Blocked batches<b>1</b></div>
+    <div class="stat">Alerts recorded<b>1</b></div>
+  </div>
+
+  <h2>DAG flow</h2>
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+flowchart LR
+  A[FileSensor raw batch] --> B[Ingest]
+  B --> C[PySpark transform]
+  C --> D[dbt models DuckDB]
+  D --> E[Quality gates]
+  E -->|pass| F[Publish HTML report]
+  E -->|fail| G[Quarantine + alert]
+  G --> H[Branch blocks publish]
+    </pre>
+  </div>
+
+  <h2>Blocked bad batch</h2>
+  <div class="card">
+    <p>Configured bad batch date: <b class="mono">2024-06-03</b></p>
+    <p>Blocked in this report: <b class="mono">2024-06-03</b></p>
+    <p>The bad batch injects schema drift, null spikes, out-of-range values, invalid sides, and orphan account keys so the gate fails loudly.</p>
+  </div>
+
+  <h2>Per-run check results</h2>
+  
+            <section class="card">
+              <h3>2024-06-01 <span class="badge pass">PASS</span></h3>
+              <p>raw rows: <b>180</b> · processed: <b>180</b></p>
+              <table>
+                <thead><tr><th>Check</th><th>Result</th><th>Metric</th><th>Threshold</th><th>Detail</th></tr></thead>
+                <tbody><tr><td>schema_drift</td><td><span class="badge pass">PASS</span></td><td>0</td><td>0</td><td class='mono'>missing=[] extra=[]</td></tr><tr><td>null_rates</td><td><span class="badge pass">PASS</span></td><td>0.0</td><td>0.02</td><td class='mono'>rates={'trade_id': 0.0, 'trade_date': 0.0, 'symbol': 0.0, 'side': 0.0, 'quantity': 0.0, 'price': 0.0, 'account_id': 0.0, 'venue': 0.0}</td></tr><tr><td>value_ranges</td><td><span class="badge pass">PASS</span></td><td>0</td><td>0</td><td class='mono'>all values in range</td></tr><tr><td>referential_integrity</td><td><span class="badge pass">PASS</span></td><td>0</td><td>0</td><td class='mono'>orphan_account_rows=0</td></tr><tr><td>row_count</td><td><span class="badge pass">PASS</span></td><td>180</td><td>50-5000</td><td class='mono'>count=180 expected=[50,5000]</td></tr><tr><td>row_count_reconciliation</td><td><span class="badge pass">PASS</span></td><td>0</td><td>0</td><td class='mono'>raw=180 processed=180 delta=0</td></tr></tbody>
+              </table>
+            </section>
+            
+            <section class="card">
+              <h3>2024-06-02 <span class="badge pass">PASS</span></h3>
+              <p>raw rows: <b>180</b> · processed: <b>180</b></p>
+              <table>
+                <thead><tr><th>Check</th><th>Result</th><th>Metric</th><th>Threshold</th><th>Detail</th></tr></thead>
+                <tbody><tr><td>schema_drift</td><td><span class="badge pass">PASS</span></td><td>0</td><td>0</td><td class='mono'>missing=[] extra=[]</td></tr><tr><td>null_rates</td><td><span class="badge pass">PASS</span></td><td>0.0</td><td>0.02</td><td class='mono'>rates={'trade_id': 0.0, 'trade_date': 0.0, 'symbol': 0.0, 'side': 0.0, 'quantity': 0.0, 'price': 0.0, 'account_id': 0.0, 'venue': 0.0}</td></tr><tr><td>value_ranges</td><td><span class="badge pass">PASS</span></td><td>0</td><td>0</td><td class='mono'>all values in range</td></tr><tr><td>referential_integrity</td><td><span class="badge pass">PASS</span></td><td>0</td><td>0</td><td class='mono'>orphan_account_rows=0</td></tr><tr><td>row_count</td><td><span class="badge pass">PASS</span></td><td>180</td><td>50-5000</td><td class='mono'>count=180 expected=[50,5000]</td></tr><tr><td>row_count_reconciliation</td><td><span class="badge pass">PASS</span></td><td>0</td><td>0</td><td class='mono'>raw=180 processed=180 delta=0</td></tr></tbody>
+              </table>
+            </section>
+            
+            <section class="card">
+              <h3>2024-06-03 <span class="badge fail">FAIL</span></h3>
+              <p>raw rows: <b>160</b> · processed: <b>152</b></p>
+              <table>
+                <thead><tr><th>Check</th><th>Result</th><th>Metric</th><th>Threshold</th><th>Detail</th></tr></thead>
+                <tbody><tr><td>schema_drift</td><td><span class="badge fail">FAIL</span></td><td>1</td><td>0</td><td class='mono'>missing=[] extra=['extra_fee_code']</td></tr><tr><td>null_rates</td><td><span class="badge fail">FAIL</span></td><td>0.1562</td><td>0.02</td><td class='mono'>rates={'trade_id': 0.05, 'trade_date': 0.0, 'symbol': 0.0, 'side': 0.0, 'quantity': 0.0, 'price': 0.1562, 'account_id': 0.0, 'venue': 0.0}</td></tr><tr><td>value_ranges</td><td><span class="badge fail">FAIL</span></td><td>2</td><td>0</td><td class='mono'>quantity_out_of_range=5; invalid_side=5</td></tr><tr><td>referential_integrity</td><td><span class="badge fail">FAIL</span></td><td>10</td><td>0</td><td class='mono'>orphan_account_rows=10</td></tr><tr><td>row_count</td><td><span class="badge pass">PASS</span></td><td>160</td><td>50-5000</td><td class='mono'>count=160 expected=[50,5000]</td></tr><tr><td>row_count_reconciliation</td><td><span class="badge pass">PASS</span></td><td>8</td><td>160</td><td class='mono'>raw=160 processed=152 delta=8</td></tr></tbody>
+              </table>
+            </section>
+            
+            <section class="card">
+              <h3>2024-06-04 <span class="badge pass">PASS</span></h3>
+              <p>raw rows: <b>180</b> · processed: <b>180</b></p>
+              <table>
+                <thead><tr><th>Check</th><th>Result</th><th>Metric</th><th>Threshold</th><th>Detail</th></tr></thead>
+                <tbody><tr><td>schema_drift</td><td><span class="badge pass">PASS</span></td><td>0</td><td>0</td><td class='mono'>missing=[] extra=[]</td></tr><tr><td>null_rates</td><td><span class="badge pass">PASS</span></td><td>0.0</td><td>0.02</td><td class='mono'>rates={'trade_id': 0.0, 'trade_date': 0.0, 'symbol': 0.0, 'side': 0.0, 'quantity': 0.0, 'price': 0.0, 'account_id': 0.0, 'venue': 0.0}</td></tr><tr><td>value_ranges</td><td><span class="badge pass">PASS</span></td><td>0</td><td>0</td><td class='mono'>all values in range</td></tr><tr><td>referential_integrity</td><td><span class="badge pass">PASS</span></td><td>0</td><td>0</td><td class='mono'>orphan_account_rows=0</td></tr><tr><td>row_count</td><td><span class="badge pass">PASS</span></td><td>180</td><td>50-5000</td><td class='mono'>count=180 expected=[50,5000]</td></tr><tr><td>row_count_reconciliation</td><td><span class="badge pass">PASS</span></td><td>0</td><td>0</td><td class='mono'>raw=180 processed=180 delta=0</td></tr></tbody>
+              </table>
+            </section>
+            
+            <section class="card">
+              <h3>2024-06-05 <span class="badge pass">PASS</span></h3>
+              <p>raw rows: <b>180</b> · processed: <b>180</b></p>
+              <table>
+                <thead><tr><th>Check</th><th>Result</th><th>Metric</th><th>Threshold</th><th>Detail</th></tr></thead>
+                <tbody><tr><td>schema_drift</td><td><span class="badge pass">PASS</span></td><td>0</td><td>0</td><td class='mono'>missing=[] extra=[]</td></tr><tr><td>null_rates</td><td><span class="badge pass">PASS</span></td><td>0.0</td><td>0.02</td><td class='mono'>rates={'trade_id': 0.0, 'trade_date': 0.0, 'symbol': 0.0, 'side': 0.0, 'quantity': 0.0, 'price': 0.0, 'account_id': 0.0, 'venue': 0.0}</td></tr><tr><td>value_ranges</td><td><span class="badge pass">PASS</span></td><td>0</td><td>0</td><td class='mono'>all values in range</td></tr><tr><td>referential_integrity</td><td><span class="badge pass">PASS</span></td><td>0</td><td>0</td><td class='mono'>orphan_account_rows=0</td></tr><tr><td>row_count</td><td><span class="badge pass">PASS</span></td><td>180</td><td>50-5000</td><td class='mono'>count=180 expected=[50,5000]</td></tr><tr><td>row_count_reconciliation</td><td><span class="badge pass">PASS</span></td><td>0</td><td>0</td><td class='mono'>raw=180 processed=180 delta=0</td></tr></tbody>
+              </table>
+            </section>
+            
+
+  <h2>Quarantine record</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Date</th><th>Reason</th><th>Path</th></tr></thead>
+      <tbody><tr><td>2024-06-03</td><td>quality_gates_failed:schema_drift,null_rates,value_ranges,referential_integrity</td><td class='mono'>D:\001Nov\projects\airflow-elt-data-quality\data\quarantine\trade_date=2024-06-03</td></tr></tbody>
+    </table>
+  </div>
+
+  <h2>Alerts</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Date</th><th>Message</th><th>Timestamp</th></tr></thead>
+      <tbody><tr><td>2024-06-03</td><td class='mono'>Batch blocked by quality gates: quality_gates_failed:schema_drift,null_rates,value_ranges,referential_integrity</td><td>2026-11-18T18:12:14.284182Z</td></tr></tbody>
+    </table>
+  </div>
+</main>
+<footer>
+  Rahul Ega · <a href="https://github.com/Rahul9121/airflow-elt-data-quality">github.com/Rahul9121/airflow-elt-data-quality</a>
+</footer>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({ startOnLoad: true, theme: "dark", securityLevel: "loose" });
+</script>
+</body>
+</html>
